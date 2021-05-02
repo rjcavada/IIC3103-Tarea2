@@ -47,6 +47,7 @@ class ArtistsController < ApplicationController
 
     def show_tracks
         @artist_tracks = []
+        tracks = []
         if Artist.exists?(params[:id])
             @artist = Artist.find(params[:id])
         else
@@ -62,7 +63,13 @@ class ArtistsController < ApplicationController
                 end
                 @artist_tracks += @tracks
             end
-            render json: @artist_tracks
+            for @track in @artist_tracks
+                h1 = @track.as_json(only: [:id, :album_id, :name, :duration, :times_played, :artist, :self])
+                h2 = {"album" => @track.album_url}
+                h1 = h1.merge(h2)
+                tracks << h1
+            end
+            render json: tracks
         else 
             render json: @artist, status: 404
         end
