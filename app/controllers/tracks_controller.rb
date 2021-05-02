@@ -56,7 +56,7 @@ class TracksController < ApplicationController
                     h1 = @track.as_json(only: [:id, :album_id, :name, :duration, :times_played, :artist, :self])
                     h2 = {"album" => @track.album_url}
                     h1 = h1.merge(h2)
-                    render json: h1, status: :created, location: @track
+                    render json: h1, status: :created
                 end
             else
                 render json: nil, status: 400
