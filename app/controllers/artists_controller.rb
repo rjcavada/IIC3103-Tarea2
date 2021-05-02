@@ -26,7 +26,11 @@ class ArtistsController < ApplicationController
 
     def show_albums
         albums = []
-        @artist = Artist.find_by(id: params[:id])
+        if Artist.exists?(params[:id])
+            @artist = Artist.find(params[:id])
+        else
+            @artist = nil
+        end
         if @artist
             @albums = @artist.albums
             for @album in @albums
@@ -35,29 +39,33 @@ class ArtistsController < ApplicationController
                 h1 = h1.merge(h2)
                 albums << h1
             end
+            render json: albums
         else 
             render json: @artist, status: 404
         end
-        render json: albums
     end
 
     def show_tracks
         @artist_tracks = []
-        @artist = Artist.find_by(id: params[:id])
+        if Artist.exists?(params[:id])
+            @artist = Artist.find(params[:id])
+        else
+            @artist = nil
+        end
         if @artist
             @albums = @artist.albums
+            for @album in @albums
+                if @album == []
+                    @tracks = []
+                else
+                    @tracks = @album.tracks
+                end
+                @artist_tracks += @tracks
+            end
+            render json: @artist_tracks
         else 
             render json: @artist, status: 404
         end
-        for @album in @albums
-            if @album == []
-                @tracks = []
-            else
-                @tracks = @album.tracks
-            end
-            @artist_tracks += @tracks
-        end
-        render json: @artist_tracks
     end
 
     def create
@@ -108,22 +116,22 @@ class ArtistsController < ApplicationController
         @artist = Artist.find_by(id: params[:id])
         if @artist
             @albums = @artist.albums
+            for @album in @albums
+                if @album == []
+                    @tracks = []
+                else
+                    @tracks = @album.tracks
+                end
+                @artist_tracks += @tracks
+            end
+            for @track in @artist_tracks
+                @times = @track.times_played
+                @times += 1
+                @track.update(times_played: @times)
+            end
+            render json: nil, status: 200
         else 
             render json: @artist, status: 404
         end
-        for @album in @albums
-            if @album == []
-                @tracks = []
-            else
-                @tracks = @album.tracks
-            end
-            @artist_tracks += @tracks
-        end
-        for @track in @artist_tracks
-            @times = @track.times_played
-            @times += 1
-            @track.update(times_played: @times)
-        end
-        render json: nil, status: 200
     end
 end

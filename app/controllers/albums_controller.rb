@@ -95,14 +95,14 @@ class AlbumsController < ApplicationController
         @album = Album.find_by(id: params[:id])
         if @album
             @tracks = @album.tracks
+            for @track in @tracks
+                @times = @track.times_played
+                @times += 1
+                @track.update(times_played: @times)
+            end
+            render json: nil, status: 200
         else 
             render json: @album, status: 404
         end
-        for @track in @tracks
-            @times = @track.times_played
-            @times += 1
-            @track.update(times_played: @times)
-        end
-        render json: nil, status: 200
     end
 end
